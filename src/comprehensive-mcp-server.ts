@@ -375,8 +375,6 @@ server.prompt(
   })
 );
 
-// 由于目前版本的MCP SDK中对prompt的role支持限制，我们暂时注释掉这些高级提示功能
-/*
 // 3.2 代码审查提示
 server.prompt(
   "code-review",
@@ -387,24 +385,17 @@ server.prompt(
   ({ language, code }) => ({
     messages: [
       {
-        role: "system",
-        content: {
-          type: "text",
-          text: `你是一位专业的${language}代码审查员。请审查以下代码，提供改进建议。`,
-        },
-      },
-      {
         role: "user",
         content: {
           type: "text",
-          text: `请审查这段${language}代码：\n\n\`\`\`${language}\n${code}\n\`\`\``,
+          text: `你是一位专业的${language}代码审查员。请审查以下代码，提供改进建议：\n\n\`\`\`${language}\n${code}\n\`\`\``,
         },
       },
     ],
   })
 );
 
-// 3.3 多角色对话提示
+// 3.3 面试模拟提示
 server.prompt(
   "interview-simulation",
   {
@@ -414,65 +405,10 @@ server.prompt(
   ({ position, candidateName }) => ({
     messages: [
       {
-        role: "system",
-        content: {
-          type: "text",
-          text: `这是一个${position}职位的面试模拟。你将扮演面试官的角色。`,
-        },
-      },
-      {
         role: "user",
         content: {
           type: "text",
-          text: `我是${candidateName}，我来应聘${position}职位。请开始面试。`,
-        },
-      },
-      {
-        role: "assistant",
-        content: {
-          type: "text",
-          text: `你好，${candidateName}！我是今天的面试官。很高兴认识你。我们来聊聊你的经历和对${position}这个职位的理解吧。首先，能否简单介绍一下你自己？`,
-        },
-      },
-    ],
-  })
-);
-*/
-
-// 3.2 简化版代码审查提示（仅用户消息）
-server.prompt(
-  "code-review-simple",
-  {
-    language: z.string().describe("编程语言"),
-    code: z.string().describe("要审查的代码"),
-  },
-  ({ language, code }) => ({
-    messages: [
-      {
-        role: "user",
-        content: {
-          type: "text",
-          text: `我是一名代码审查员。请审查这段${language}代码：\n\n\`\`\`${language}\n${code}\n\`\`\``,
-        },
-      },
-    ],
-  })
-);
-
-// 3.3 简化版面试模拟提示（仅用户消息）
-server.prompt(
-  "interview-simple",
-  {
-    position: z.string().describe("面试职位"),
-    candidateName: z.string().describe("候选人姓名"),
-  },
-  ({ position, candidateName }) => ({
-    messages: [
-      {
-        role: "user",
-        content: {
-          type: "text",
-          text: `我是${candidateName}，正在参加${position}职位的面试。请你模拟面试官开始面试我。`,
+          text: `这是一个${position}职位的面试模拟。你将扮演面试官的角色。我是${candidateName}，我来应聘${position}职位。请开始面试。`,
         },
       },
     ],
