@@ -1,64 +1,43 @@
 #!/usr/bin/env node
 
-import {
-  McpServer,
-  ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { SERVER_CONFIG } from "./config/server-config";
+import { registerAllTools } from "./tools";
+import { registerAllResources } from "./resources";
+import { registerAllPrompts } from "./prompts";
 
-// 创建MCP服务器实例
+/**
+ * MCP 服务器
+ * 提供各种工具、资源和提示模板的综合服务
+ */
+
+// 创建 MCP 服务器实例
 const server = new McpServer({
-  name: "calculator-mcp-server",
-  version: "1.0.0",
+  name: SERVER_CONFIG.name,
+  version: SERVER_CONFIG.version,
+  description: SERVER_CONFIG.description,
 });
 
-// 注册加法工具
-server.tool(
-  "add_numbers",
-  {
-    a: z.number().describe("第一个数字"),
-    b: z.number().describe("第二个数字"),
-  },
-  async ({ a, b }) => {
-    // 执行加法运算
-    const result = a + b;
-
-    // 返回结果
-    return {
-      content: [
-        {
-          type: "text",
-          text: `计算结果: ${a} + ${b} = ${result}`,
-        },
-      ],
-    };
-  }
-);
-
-// 添加一个动态的问候资源
-server.resource(
-  "greeting",
-  new ResourceTemplate("greeting://{name}", { list: undefined }),
-  async (uri, { name }) => ({
-    contents: [
-      {
-        uri: uri.href,
-        mimeType: "text/plain",
-        text: `你好，${name}！`,
-      },
-    ],
-  })
-);
+// 注册所有模块
+registerAllTools(server);
+registerAllResources(server);
+registerAllPrompts(server);
 
 // 启动服务器
 async function main() {
   try {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("计算器 MCP 服务器已启动");
+    console.error(
+      `${SERVER_CONFIG.name} 已启动，版本 ${SERVER_CONFIG.version}`
+    );
+    console.error("正在监听请求...");
   } catch (error) {
-    console.error("服务器启动失败:", error);
+    console.error(
+      "服务器启动失败:",
+      error instanceof Error ? error.message : String(error)
+    );
     process.exit(1);
   }
 }
